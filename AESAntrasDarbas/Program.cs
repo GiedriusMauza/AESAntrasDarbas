@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Unicode;
@@ -7,17 +8,39 @@ class Program
 {
     static void Main(string[] args)
     {
-
-        // Menu
-
+        // Input string
         Console.WriteLine("Enter text to encrypt or decrypt:");
-        /*        string input = Console.ReadLine();*/
+        string input = Console.ReadLine();
+        /*string input = "B8hlaumyJLHZRq6494xXrg==";*/
 
-        string input = "B8hlaumyJLHZRq6494xXrg==";
+        // Mode for encryption
+        Console.WriteLine("Select mode :");
+        Console.WriteLine("1. ECB");
+        Console.WriteLine("2. CBC");
+        Console.WriteLine("3. CFB");
+        Console.WriteLine("4. CTS");
+        Console.WriteLine("5. CFB");
+        int modeOption = int.Parse(Console.ReadLine());
+        string mode = string.Empty;
+        /*mode = "ECB"; // Change to "ECB", "CBC", "CFB", "CTS", or "CFB" for different modes*/
+        switch (modeOption)
+        {
+            case 1: mode = "ECB";
+                break;
+            case 2: mode = "CBC";
+                break;
+            case 3: mode = "CFB";
+                break;
+            case 4: mode = "CTS";
+                break;
+            case 5: mode = "CFB";
+                break;
+            default:
+                Console.WriteLine("Invalid mode selected.");
+                break;
+        }
 
-
-        string mode = "ECB"; // Change to "ECB", "CBC", "CFB", or "CTR" for different modes
-
+        // Encryption
         Console.WriteLine("Select an option:");
         Console.WriteLine("1. Encrypt");
         Console.WriteLine("2. Decrypt");
@@ -42,11 +65,11 @@ class Program
                     myAes.Mode = (CipherMode)Enum.Parse(typeof(CipherMode), mode);
                     /*Console.WriteLine("Enter the encryption key:");
                     string key = Console.ReadLine();*/
-                    var key = Convert.FromBase64String("5m0wa687iDyCN8GYgJFO3lFuXhxFvPAk5tt4iGKayTY=");
+                    var key = Convert.FromBase64String("lY191fiIRcv3URfoGAy1TOPUDQIznZQPMT8yLCAkWM0=");
 
                     /*Console.WriteLine("Enter the initialization vector (IV):");
                     string iv = Console.ReadLine();*/
-                    var iv = Convert.FromBase64String("QJz4fid0UjorpgYVCIqakA==");
+                    var iv = Convert.FromBase64String("9h0wlzq/GvBUXwyt4mliow==");
 
                     byte[] encryptedBytes = Convert.FromBase64String(input);
                     string decryptedString = DecryptStringFromBytes_Aes(encryptedBytes, key, iv, myAes.Mode);
@@ -57,10 +80,6 @@ class Program
                 Console.WriteLine("Invalid option selected.");
                 break;
         }
-
-
-
-
 
 
         static byte[] EncryptStringToBytes_Aes(string plainText, byte[] Key, byte[] IV, CipherMode mode)
@@ -79,6 +98,10 @@ class Program
                 aesAlg.Mode = mode;
                 aesAlg.Key = Key;
                 aesAlg.IV = IV;
+
+                // TODO: add logic for user to select if he wants to write to the file
+                // TODO: format to json
+                WriteToFile(Convert.ToBase64String(aesAlg.Key) + " " + Convert.ToBase64String(aesAlg.IV));
 
                 Console.WriteLine("Key: {0}", Convert.ToBase64String(aesAlg.Key));
                 Console.WriteLine("IV: {0}", Convert.ToBase64String(aesAlg.IV));
@@ -133,6 +156,18 @@ class Program
             }
 
             return plaintext;
+        }
+
+        static async void WriteToFile(string text)
+        {
+            // Set a variable to the Documents path.
+            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+            // Write the specified text asynchronously to a new file
+            using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "WriteTextAsync.txt")))
+            {
+                await outputFile.WriteAsync(text);
+            }
         }
     }
 }
